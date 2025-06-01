@@ -16,6 +16,11 @@ impl AddrTracker {
     }
 }
 
+#[allow(dead_code)]
+struct BoxType<'a> {
+    data: Box<&'a str>,
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -29,5 +34,18 @@ mod test {
         let mut tracker = tracker;
 
         tracker.check_for_move();
+    }
+
+    #[test]
+    fn box_type() {
+        let a = "hello".to_string();
+        let box_type = BoxType { data: Box::new(&a) };
+        let _new_box_type = box_type;
+        // can't use box_type here, as it has been moved
+        // let data = box_type.data;
+        //
+        std::mem::drop(a);
+        // can't access data since the a is dropped and the ref &a become invalid
+        // let val = _new_box_type.data;
     }
 }
